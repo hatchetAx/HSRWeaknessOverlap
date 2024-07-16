@@ -206,6 +206,8 @@ public class WeaknessOverlap {
         return occurs;
     }
 
+    //why do only some not print correctly????
+
     //gets highest occuring and lowest occuring weakness for each enemy
     public static void highestAndLowestOverlaps(ArrayList<String> otherTypes, String weakness) throws FileNotFoundException {
         highestWeak = "";
@@ -218,20 +220,22 @@ public class WeaknessOverlap {
             //lowest
             if (overlaps(weakness, otherTypes.get(i)) < lowestOccur) {
                 lowestOccur = overlaps(weakness, otherTypes.get(i));
-                lowestWeak = otherTypes.get(i);
-            }   else if (overlaps(weakness, otherTypes.get(i)) == lowestOccur) {
+                lowestWeak = otherTypes.get(i) + " ";
+            } else if (overlaps(weakness, otherTypes.get(i)) == lowestOccur) {
                 lowestWeak += otherTypes.get(i) + " ";
             }
 
             //highest
             if (overlaps(weakness, otherTypes.get(i)) > highestOccur) {
                 highestOccur = overlaps(weakness, otherTypes.get(i));
-                highestWeak = otherTypes.get(i);
+                highestWeak = otherTypes.get(i) + " ";
             } else if (overlaps(weakness, otherTypes.get(i)) == highestOccur) {
                 highestWeak += otherTypes.get(i) + " ";
             }
         }
     }
+
+    //NO IT'S ONES THAT ARE RIGHT NEXT TO EACH OTHER THAT MESS UP
 
     //formatting
     //prints the elements and number of times they occur with each enemy
