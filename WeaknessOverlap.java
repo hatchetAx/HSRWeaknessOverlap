@@ -9,15 +9,23 @@ public class WeaknessOverlap {
 
     //TODO: need to include weekly bosses
 
+    //weaknesses will contain the different weakness types for each enemy
     static String[][] weaknesses;
     static String[] enemyNames;
+    //temp stores weaknesses for each enemy, like weaknesses, but in string format
     static String[] temp;
+    //types is used for the different types of weaknesses for each enemy in temp, and then stores it in the weaknesses 2d array
     static String[] types;
+    //numOfOtherTypes is the amount of all other weakness types, excluding one, which will be what the other types are comparing against
+    static int numOfOtherTypes = 6;
+    //count2 is used for setting each rows column length in parseFiles();
     static int count2 = 0;
+    //occurs is used for counting how many times an element occurs with another element for each enemy
     static int occurs = 0;
     static File enemies = new File("enemies.txt");
     static File weakness = new File("weakness.txt");
 
+    //dividePos is the dividing point where normal type enemies stop, and elite enemies begin
     static int dividePos = 0;
     static int highestOccur;
     static int lowestOccur;
@@ -72,7 +80,6 @@ public class WeaknessOverlap {
 
         regex();
 
-        //count and temp.length are basically the same thing
         weaknesses = new String[temp.length][];
         
         //set each rows length
@@ -88,7 +95,7 @@ public class WeaknessOverlap {
         }
 
 
-        //put types into 2d array
+        //put types into 2d array weaknesses
         for (int y = 0; y < temp.length; y++) {
 
             types = temp[y].split(" ");
@@ -137,7 +144,7 @@ public class WeaknessOverlap {
                 }
                 weaknesses[y] = new String[count2 + 1];
             } 
-            //put types into 2d array
+            //put types into 2d array weaknesses for all normal type enemies
             for (int y = 0; y < dividePos; y++) {
 
                 types = temp[y].split(" ");
@@ -147,7 +154,7 @@ public class WeaknessOverlap {
             
         } else if (enemyType.equalsIgnoreCase("elite")) {
 
-            //set each rows length, but changes temp position to where elite enemies start with dividePos
+            //set column length for each row, but changes temp position to where elite enemies start with dividePos
             for (int y = 0; y < weaknesses.length; y++) {
                 count2 = 0;
                     for (int i = 0; i < temp[y + dividePos].length(); i++) {
@@ -158,8 +165,7 @@ public class WeaknessOverlap {
                 }
                 weaknesses[y] = new String[count2 + 1];
             } 
-
-            //copies type of weakness, but starts further up to where elites start
+            //put types into 2d array weaknesses, but temp starts further up to where elites start
             for (int y = 0; y < weaknesses.length; y++) {
 
                 types = temp[y + dividePos].split(" ");
@@ -175,8 +181,8 @@ public class WeaknessOverlap {
 
 
     //weakness overlap
-    //start with one element, then count how many other elements reoccur with it (in weaknesses array)
-    //starting element is variable weak and remains the same, weakCompared will be all other elements
+    //start with one element, then count how many other elements reoccur with it for each enemy
+    //starting element is parameter weak and remains the same, weakCompared will be all other element types
     public static int overlaps(String weak, String weakCompared) throws FileNotFoundException { 
 
         occurs = 0;
@@ -200,16 +206,16 @@ public class WeaknessOverlap {
         return occurs;
     }
 
-    //gets highest occuring and lowest occuring weaknesses found with parameter String weakness
+    //gets highest occuring and lowest occuring weakness for each enemy
     public static void highestAndLowestOverlaps(ArrayList<String> otherTypes, String weakness) throws FileNotFoundException {
         highestWeak = "";
         lowestWeak = "";
         
         highestOccur = overlaps(weakness, otherTypes.get(0));
         lowestOccur = overlaps(weakness, otherTypes.get(0));
-        //gets highest and lowest occurence
-        for (int i = 0; i < 6; i++) {
-            //min
+
+        for (int i = 0; i < numOfOtherTypes; i++) {
+            //lowest
             if (overlaps(weakness, otherTypes.get(i)) < lowestOccur) {
                 lowestOccur = overlaps(weakness, otherTypes.get(i));
                 lowestWeak = otherTypes.get(i);
@@ -217,7 +223,7 @@ public class WeaknessOverlap {
                 lowestWeak += otherTypes.get(i) + " ";
             }
 
-            //max
+            //highest
             if (overlaps(weakness, otherTypes.get(i)) > highestOccur) {
                 highestOccur = overlaps(weakness, otherTypes.get(i));
                 highestWeak = otherTypes.get(i);
@@ -228,12 +234,12 @@ public class WeaknessOverlap {
     }
 
     //formatting
-    //prints the elements and number of times they occur with each other
+    //prints the elements and number of times they occur with each enemy
     //also prints highest and lowest occuring element that occurs with parameter weakness
     public static void formatOverlap(String weakness) throws FileNotFoundException {
         ArrayList<String> otherTypes = new ArrayList<>();
         
-
+        //change the other weakness types stored in otherTypes depending on which element is being compared against
         switch(weakness) {
             case "Physical" -> Collections.addAll(otherTypes, "Fire", "Ice", "Lightning", "Wind", "Quantum", "Imaginary");
             case "Fire" -> Collections.addAll(otherTypes, "Physical", "Ice", "Lightning", "Wind", "Quantum", "Imaginary");
@@ -248,8 +254,9 @@ public class WeaknessOverlap {
         highestAndLowestOverlaps(otherTypes, weakness);
 
         //prints weaknesses and how often they occur with another weakness
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < numOfOtherTypes; i++) {
             //since imaginary is two letters (to differentiate from Ice), have to check if it's weakness or compared weakness to print accordingly
+            //thought the output looked too crowded with every type having 2 letters
             if (weakness.equals("Imaginary")) {
                 System.out.print("Im+" + otherTypes.get(i).charAt(0) + ": " + overlaps(weakness, otherTypes.get(i)) + " ");
             } else if (otherTypes.get(i).equals("Imaginary")) {
@@ -287,7 +294,7 @@ public class WeaknessOverlap {
         System.out.println("normal or elite enemies? (default is all)");
         answer = userInput.nextLine();
 
-        if (answer.length() > 0 && (answer.equalsIgnoreCase("normal") || answer.equalsIgnoreCase("elite"))) {
+        if (answer.equalsIgnoreCase("normal") || answer.equalsIgnoreCase("elite")) {
             weaknesses = WeaknessOverlap.parseFiles(answer);
         } else {
             weaknesses = WeaknessOverlap.parseFiles();
